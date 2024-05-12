@@ -7,7 +7,6 @@ import { CardBody, CardContainer, CardItem } from "../utils/3dCard";
 import PlaceHolder from "/watching.svg";
 import toast from "react-hot-toast";
 
-
 const Movies = () => {
 	const [movies, setMovies] = useState({
 		results: [],
@@ -35,8 +34,13 @@ const Movies = () => {
 								};
 							});	
 						}else{
-							toast.error(data.Error, {position: "bottom-center"});
-							console.log(data.Error);
+							switch(data.Error){
+								case "Too many results.":
+									toast.error("There are too many results, Please provide a more specific name.", {position: "bottom-center"});
+									break;
+								default:
+									toast.error(data.Error, {position: "bottom-center"});
+							}
 							setMovies((prevState) => {
 								return {
 									...prevState,
@@ -50,11 +54,16 @@ const Movies = () => {
 				.catch(error => {
 					console.log(error);
 				});
+		}else{
+			setMovies({
+				results: [],
+				selected: {},
+			})
 		}
 	}, 800);
 
 	const openDetail = (id) => {
-		axios(`${apiurl}&i=${id}`)
+		axios(`${apiurl}&i=${id}&plot=full`)
 			.then(({ data }) => {
 				const result = data;
 
@@ -105,7 +114,7 @@ const Movies = () => {
 							<CardBody className="bg-slate-50 dark:bg-[#1c1722] relative group/card dark:hover:shadow-2xl dark:hover:shadow-emerald-500/[0.1] dark:border-white/[0.2] border-black/[0.1] rounded-xl p-4 border">
 								<CardItem
 									translateZ="50"
-									className="text-xl font-bold text-neutral-800 dark:text-slate-100 truncate w-full"
+									className="text-lg sm:text-xl font-bold text-neutral-800 dark:text-slate-100 truncate w-full"
 								>
 									{movie.Title}
 								</CardItem>
